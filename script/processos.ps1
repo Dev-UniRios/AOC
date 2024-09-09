@@ -1,31 +1,44 @@
-# Define o caminho do arquivo de saída
-$arquivoSaida = "C:\Monitoramento\Relatorio_Desempenho.txt"
+# Define o caminho do arquivo de log onde os dados de desempenho serão salvos
+$arquivoLog = "C:\Monitoramento\Relatorio_Desempenho.txt"
 
-# Limpa o conteúdo anterior do arquivo
-Clear-Content $arquivoSaida
+# Limpa o conteúdo anterior do arquivo de log
+Clear-Content $arquivoLog
 
-# Adiciona um cabeçalho ao arquivo
-Add-Content $arquivoSaida "Monitoramento de Processos - Uso de CPU e Memória"
-Add-Content $arquivoSaida "==========================================="
-Add-Content $arquivoSaida "Data/Hora: $(Get-Date)"
-Add-Content $arquivoSaida ""
+# Cabeçalho do relatório
+Add-Content $arquivoLog "Relatório de Desempenho de Processos Críticos"
+Add-Content $arquivoLog "============================================="
+Add-Content $arquivoLog "Data/Hora: $(Get-Date)"
+Add-Content $arquivoLog ""
 
-# Obtém os processos em execução e filtra os que estão usando mais de 10% de CPU ou mais de 100MB de memória
-$processos = Get-Process | Where-Object {
-    $_.CPU -gt 10 -or $_.WorkingSet64 -gt 100MB
-}
+# Loop para monitorar desempenho por 10 iterações (10 medições) com intervalo de 5 segundos
+for ($i=0; $i -le 10; $i++) {
+    
+    # Obtém os processos críticos que deseja monitorar (pode adicionar mais processos conforme necessário)
+    $processos = Get-Process | Where-Object {
+        $_.ProcessName -in @("chrome", "explorer", "notepad")
+    }
 
-# Adiciona os resultados ao arquivo
-foreach ($processo in $processos) {
-    $nome = $processo.ProcessName
-    $usoCPU = [math]::Round($processo.CPU, 2)
-    $memoriaMB = [math]::Round($processo.WorkingSet64 / 1MB, 2)
+    # Para cada processo encontrado, adiciona suas informações ao log
+    foreach ($processo in $processos) {
+        $nome = $processo.ProcessName
+        $usoCPU = [math]::Round($processo.CPU, 2)  # Uso de CPU em segundos
+        $memoriaMB = [math]::Round($processo.WorkingSet64 / 1MB, 2)  # Memória em MB
 
-    Add-Content $arquivoSaida "Nome do Processo: $nome"
-    Add-Content $arquivoSaida "Uso de CPU: $usoCPU %"
-    Add-Content $arquivoSaida "Memória Usada: $memoriaMB MB"
-    Add-Content $arquivoSaida "-------------------------------------------"
+        # Adiciona as informações ao arquivo de log
+        Add-Content $arquivoLog "Nome do Processo: $nome"
+        Add-Content $arquivoLog "Uso de CPU: $usoCPU segundos"
+        Add-Content $arquivoLog "Memória Usada: $memoriaMB MB"
+        Add-Content $arquivoLog "-------------------------------------------"
+    }
+
+    # Adiciona uma linha de separação para cada medição
+    Add-Content $arquivoLog "Medição concluída em: $(Get-Date)"
+    Add-Content $arquivoLog "============================================="
+    Add-Content $arquivoLog ""
+
+    # Pausa de 5 segundos antes da próxima medição
+    Start-Sleep 5
 }
 
 # Exibe uma mensagem de conclusão
-Write-Host "Monitoramento concluído! Os resultados foram salvos em $arquivoSaida"
+Write-Host "Monitoramento concluído! O relatório foi salvo em $arquivoLog"
