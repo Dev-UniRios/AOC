@@ -1,5 +1,12 @@
-# Define o caminho do arquivo de log onde os dados de desempenho serão salvos
-$arquivoLog = "C:\Monitoramento\Relatorio_Desempenho.txt"
+# Define o caminho do diretório e arquivo de log
+$diretorio = "C:\Monitoramento"
+$arquivoLog = "$diretorio\Relatorio_Desempenho.txt"
+
+# Verifica se o diretório C:\Monitoramento existe; se não, cria-o
+if (-not (Test-Path $diretorio)) {
+    New-Item -Path $diretorio -ItemType Directory
+    Write-Host "Diretório $diretorio criado."
+}
 
 # Limpa o conteúdo anterior do arquivo de log
 Clear-Content $arquivoLog
@@ -13,7 +20,7 @@ Add-Content $arquivoLog ""
 # Loop para monitorar desempenho por 10 iterações (10 medições) com intervalo de 5 segundos
 for ($i=0; $i -le 10; $i++) {
     
-    # Obtém os processos críticos que deseja monitorar (pode adicionar mais processos conforme necessário)
+    # Obtém os processos críticos que deseja monitorar
     $processos = Get-Process | Where-Object {
         $_.ProcessName -in @("chrome", "explorer", "notepad")
     }
