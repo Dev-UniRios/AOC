@@ -7,18 +7,22 @@ def memory_usage():
     mem_info = process.memory_info()
     return mem_info.rss / (1024 ** 2)  # Convertendo para MB
 
-def consume_memory(size_in_gb):
+def consume_memory(target_size_gb):
     big_list = []
+    
+    # Converte o tamanho desejado para MB
+    target_size_mb = target_size_gb * 1024
 
-    # Simula o consumo de memória (cada número inteiro ocupa 28 bytes em média no Python)
-    target_size = size_in_gb * (1024 ** 3)  # Converte GB para bytes
+    print(f"Objetivo: Consumir {target_size_gb} GB ({target_size_mb} MB) de memória...")
 
-    print(f"Consumindo {size_in_gb} GB de memória...")
+    while memory_usage() < target_size_mb:
+        big_list.extend(range(10**6))  # Adiciona 1 milhão de inteiros (cada inteiro ~28 bytes)
 
-    while memory_usage() < size_in_gb * 1024:  # Continua até atingir o tamanho desejado em MB
-        big_list.extend(range(10**6))  # Adiciona mais itens
+        # A cada iteração, mostra o consumo de memória até atingir o valor desejado
+        print(f"Memória consumida até agora: {memory_usage():.2f} MB")
 
-    print(f"Memória consumida: {memory_usage():.2f} MB")
+    print(f"Memória final consumida: {memory_usage():.2f} MB")
 
-# Consumir 4 GB de memória como exemplo
+# 🧨 CUIDADO!!🧨
+# Consumir 4 GB de memória como exemplo, mas pode causar travamento do sistema.
 consume_memory(4)
